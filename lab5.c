@@ -9,7 +9,6 @@
         |--example/200
         `--baz/244
             `--readme.txt/411
-
 */
 
 #define FUSE_USE_VERSION 30
@@ -22,8 +21,7 @@
 #include <errno.h>
 #include <fcntl.h>
 
-//static const char *hello_str = "Hello World!\n";
-//static const char *hello_path = "/hello";
+
 static const char *readme_str = "Student Artem Shcheglov 16150040";
 static const char *example_str = "Hello world";
 static char testtxt_str[40*2] = "";
@@ -40,49 +38,51 @@ static int _getattr(const char *path, struct stat *stbuf)
         stbuf->st_mode = S_IFDIR | 0755;
         stbuf->st_nlink = 2;
     }
-    else if (strcmp(path, "/bar") == 0){
-        stbuf->st_mode = S_IFDIR | 0705;
-        stbuf->st_nlink = 2+1+1;
-    }
-    else if (strcmp(path, "/bar/bin") == 0){
+    else if (strcmp(path, "/bin") == 0){
         stbuf->st_mode = S_IFDIR | 0700;
-        stbuf->st_nlink = 2;
+        stbuf->st_nlink = 2+1;
     }
-    else if (strcmp(path, "/bar/bin/echo") == 0){
-        stbuf->st_mode = S_IFREG | 0555;
+    else if (strcmp(path, "/bin/date") == 0){
+        stbuf->st_mode = S_IFREG | 0700;
         stbuf->st_nlink = 1;
 
-        struct stat buffer;
-        stat("/bin/echo", &buffer);//Получение размера /bin/echo
+	struct stat buffer;
+        stat("/bin/date", &buffer); //Получение размера /bin/date
         stbuf->st_size = buffer.st_size;
     }
-    else if (strcmp(path, "/bar/bin/readme.txt") == 0){
-        stbuf->st_mode = S_IFREG | 0400;
-        stbuf->st_nlink = 1;
-        stbuf->st_size = strlen(readme_str);
-    }
-    else if (strcmp(path, "/bar/baz") == 0){
-        stbuf->st_mode = S_IFDIR | 0644;
-        stbuf->st_nlink = 2;
-    }
-    else if (strcmp(path, "/bar/baz/example") == 0){
-        stbuf->st_mode = S_IFREG | 0222;
-        stbuf->st_nlink = 1;
-        stbuf->st_size = strlen(example_str);
-    }
     else if (strcmp(path, "/foo") == 0){
-        stbuf->st_mode = S_IFDIR | 0233;
+        stbuf->st_mode = S_IFDIR | 0441;
+        stbuf->st_nlink = 2+1+1+1+1;
+
+        
+    }
+    else if (strcmp(path, "/foo/bar") == 0){
+        stbuf->st_mode = S_IFDIR | 0664;
         stbuf->st_nlink = 2;
     }
     else if (strcmp(path, "/foo/test.txt") == 0){
-        stbuf->st_mode = S_IFREG | 007;
+        stbuf->st_mode = S_IFREG | 0000;
         stbuf->st_nlink = 1;
-        stbuf->st_size = strlen(testtxt_str);
+	stbuf->st_size = strlen(testtxt_str);
     }
-    else if (strcmp(path, mkdired_path) == 0){
-        stbuf->st_mode = mkdired_mode;
-        stbuf->st_nlink = 2;
+    else if (strcmp(path, "/foo/example") == 0){
+        stbuf->st_mode = S_IFREG | 0200;
+        stbuf->st_nlink = 1;
+        stbuf->st_size = strlen(example_str);
     }
+    else if (strcmp(path, "/foo/baz") == 0){
+        stbuf->st_mode = S_IFDIR | 0244;
+        stbuf->st_nlink = 2+1;
+    }
+    else if (strcmp(path, "/foo/baz/readme.txt") == 0){
+        stbuf->st_mode = S_IFREG | 0411;
+        stbuf->st_nlink = 1;
+        stbuf->st_size = strlen(readme_str);
+    }
+   // else if (strcmp(path, mkdired_path) == 0){
+        //stbuf->st_mode = mkdired_mode;
+       // stbuf->st_nlink = 2;
+    //}
     else{
         res = -ENOENT;
     }
@@ -98,36 +98,36 @@ static int _readdir(const char *path, void *buf, fuse_fill_dir_t filler,
         filler(buf, ".", NULL, 0);
         filler(buf, "..", NULL, 0);
         filler(buf, "foo", NULL, 0);
-        filler(buf, "bar", NULL, 0);
-        if (strcmp(mkdired_path, " ") != 0){
-            filler(buf, mkdired_path+1, NULL, 0);
-        }
-        return 0;
-    }
-    else if (strcmp(path, "/bar") == 0) {
-        filler(buf, ".", NULL, 0);
-        filler(buf, "..", NULL, 0);
         filler(buf, "bin", NULL, 0);
-        filler(buf, "baz", NULL, 0);
-        return 0;
-    }
-    else if (strcmp(path, "/bar/bin") == 0) {
-        filler(buf, ".", NULL, 0);
-        filler(buf, "..", NULL, 0);
-        filler(buf, "echo", NULL, 0);
-        filler(buf, "readme.txt", NULL, 0);
-        return 0;
-    }
-    else if (strcmp(path, "/bar/baz") == 0) {
-        filler(buf, ".", NULL, 0);
-        filler(buf, "..", NULL, 0);
-        filler(buf, "example", NULL, 0);
+        //if (strcmp(mkdired_path, " ") != 0){
+            //filler(buf, mkdired_path+1, NULL, 0);
+        //}
         return 0;
     }
     else if (strcmp(path, "/foo") == 0) {
         filler(buf, ".", NULL, 0);
         filler(buf, "..", NULL, 0);
-        filler(buf, "test.txt", NULL, 0);
+        filler(buf, "bar", NULL, 0);
+	filler(buf, "test.txt", NULL, 0);
+	filler(buf, "example", NULL, 0);
+        filler(buf, "baz", NULL, 0);
+        return 0;
+    }
+    else if (strcmp(path, "/bin") == 0) {
+        filler(buf, ".", NULL, 0);
+        filler(buf, "..", NULL, 0);
+        filler(buf, "date", NULL, 0);
+        return 0;
+    }
+    else if (strcmp(path, "/foo/bar") == 0) {
+        filler(buf, ".", NULL, 0);
+        filler(buf, "..", NULL, 0);
+        return 0;
+    }
+    else if (strcmp(path, "/foo/baz") == 0) {
+        filler(buf, ".", NULL, 0);
+        filler(buf, "..", NULL, 0);
+        filler(buf, "readme.txt", NULL, 0);
         return 0;
     }
     else{
@@ -141,22 +141,22 @@ static int _read(const char *path, char *buf, size_t size, off_t offset,
     size_t len;
     (void) fi;
     char *fileBuffer;
-    if (strcmp(path, "/bar/bin/echo") == 0) {
-        struct stat echo_stat;
-        stat("/bin/echo", &echo_stat);//Получение размера /bin/echo
-        len = echo_stat.st_size;
+    if (strcmp(path, "/bin/date") == 0) {
+        struct stat date_stat;
+        stat("/bin/date", &date_stat); //Получение размера /bin/date
+        len = date_stat.st_size;
 
         FILE *f;
         unsigned char buffer[len];
-        f = fopen("bin/echo", "r");
+        f = fopen("bin/date", "r");
         fread(buffer, len, 1, f);
         fileBuffer = buffer;        
     }
-    else if (strcmp(path, "/bar/bin/readme.txt") == 0) {
+    else if (strcmp(path, "/foo/baz/readme.txt") == 0) {
         len = strlen(readme_str);
         fileBuffer = readme_str;
     }
-    else if (strcmp(path, "/bar/baz/example") == 0) {
+    else if (strcmp(path, "/foo/example") == 0) {
         len = strlen(example_str);
         fileBuffer = example_str;
     }
@@ -180,7 +180,7 @@ static int _read(const char *path, char *buf, size_t size, off_t offset,
     }
 }
 
-// fuse_operations hello_oper is redirecting function-calls to _our_ functions implemented above
+// fuse_operations _oper is redirecting function-calls to _our_ functions implemented above
 static struct fuse_operations _oper = {
     .getattr        = _getattr,
     .readdir        = _readdir,
@@ -189,7 +189,7 @@ static struct fuse_operations _oper = {
 
 int main(int argc, char *argv[])
 {
-    for (int i=0; i<61*2; i++){//<Любой текст на ваш выбор с количеством строк равным последним двум цифрам номера зачетки>
+    for (int i=0; i<40*2; i++){//<Любой текст на ваш выбор с количеством строк равным последним двум цифрам номера зачетки>
         strcat(testtxt_str, "1\n");
     }
     return fuse_main(argc, argv, &_oper, NULL);
