@@ -27,8 +27,6 @@ node stats.js /path/to/config запуск
 static const char *readme_str = "Student Artem Shcheglov 16150040";
 static const char *example_str = "Hello world";
 static char testtxt_str[40*2] = "";
-static char mkdired_path[256] = " ";
-static mode_t *mkdired_mode;
 
 static int _getattr(const char *path, struct stat *stbuf)
 {
@@ -134,7 +132,8 @@ static int _write (const char *path, const char *buf, size_t size, off_t offset,
         (void) buf;
         (void) offset;
         (void) fi;
-    
+        char *fileBuffer;
+
         if (strcmp(path, "/foo/baz/readme.txt") == 0) {
             fileBuffer = readme_str;
         }
@@ -209,7 +208,7 @@ static struct fuse_operations _oper = {
     .getattr        = _getattr,
     .readdir        = _readdir,
     .read           = _read
-    //.write          = _write
+    .write          = _write
 };
 
 int main(int argc, char *argv[])
