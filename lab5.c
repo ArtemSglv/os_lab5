@@ -136,21 +136,28 @@ static int _write (const char *path, const char *buf, size_t size, off_t offset,
         (void) fi;
     
         if (strcmp(path, "/foo/baz/readme.txt") == 0) {
-                len = strlen(readme_str);
-                fileBuffer = readme_str;
+            fileBuffer = readme_str;
         }
         else if (strcmp(path, "/foo/example") == 0) {
-                len = strlen(example_str);
-                fileBuffer = example_str;
+            fileBuffer = example_str;
         }
-            else if (strcmp(path, "/foo/test.txt") == 0) {
-                len = strlen(testtxt_str);
-                fileBuffer = testtxt_str;
+        else if (strcmp(path, "/foo/test.txt") == 0) {
+            fileBuffer = testtxt_str;
+            }
+        else{
+            return -ENOENT;
+        }
+        size_t len_buf = strlen(buf);
+        if (offset < len_buf){
+            if (offset + size > len_buf){
+                size = len_buf-offset;
+            }
+                memcpy(fileBuffer,buf+offset, size);
+                return size;
             }
             else{
-                return -ENOENT;
+                return -1;
             }
-        return size;
     }
 
 static int _read(const char *path, char *buf, size_t size, off_t offset,
