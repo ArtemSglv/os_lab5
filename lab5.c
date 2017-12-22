@@ -155,7 +155,7 @@ static int _write (const char *path, const char *buf, size_t size, off_t offset,
             if (offset + size > len){
                 size = len-offset;
             }
-                memcpy(fileBuffer+offset,buf, size);
+                *(filerBuffer+offset)=buf;
                 return size;
             }
             else{
