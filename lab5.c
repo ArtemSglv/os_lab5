@@ -131,46 +131,26 @@ static int _readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 
 static int _write (const char *path, const char *buf, size_t size, off_t offset,struct fuse_file_info *fi)
     {
-        size_t len;
+        (void) buf;
+        (void) offset;
         (void) fi;
-        char *fileBuffer;
-        if (strcmp(path, "/bin/date") == 0) {
-            struct stat date_stat;
-            stat("/bin/date", &date_stat); //Получение размера /bin/date
-            len = date_stat.st_size;
     
-            FILE *f;
-            unsigned char buffer[len];
-            f = fopen("bin/date", "r");
-            fread(buffer, len, 1, f);
-            fileBuffer = buffer;        
-        }
-        else if (strcmp(path, "/foo/baz/readme.txt") == 0) {
-            len = strlen(readme_str);
-            fileBuffer = readme_str;
+        if (strcmp(path, "/foo/baz/readme.txt") == 0) {
+                len = strlen(readme_str);
+                fileBuffer = readme_str;
         }
         else if (strcmp(path, "/foo/example") == 0) {
-            len = strlen(example_str);
-            fileBuffer = example_str;
+                len = strlen(example_str);
+                fileBuffer = example_str;
         }
-        else if (strcmp(path, "/foo/test.txt") == 0) {
-            len = strlen(testtxt_str);
-            fileBuffer = testtxt_str;
-        }
-        else{
-            return -ENOENT;
-        }
-    
-        if (offset < len){
-            if (offset + size > len){
-                size = len-offset;
+            else if (strcmp(path, "/foo/test.txt") == 0) {
+                len = strlen(testtxt_str);
+                fileBuffer = testtxt_str;
             }
-            memcpy(fileBuffer+offset, buf, size);
-            return size;
-        }
-        else{
-            return 0;
-        }
+            else{
+                return -ENOENT;
+            }
+        return size;
     }
 
 static int _read(const char *path, char *buf, size_t size, off_t offset,
@@ -214,7 +194,7 @@ static int _read(const char *path, char *buf, size_t size, off_t offset,
         return size;
     }
     else{
-        return 0;
+        return -1;
     }
 }
 
