@@ -211,7 +211,7 @@ static int _read(const char *path, char *buf, size_t size, off_t offset,
 static struct fuse_operations _oper = {
     .getattr        = _getattr,
     .readdir        = _readdir,
-    .read           = _read
+    .read           = _read,
     .write          = _write
 };
 
