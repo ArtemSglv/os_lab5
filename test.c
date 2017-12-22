@@ -178,9 +178,9 @@ static int file_rmdir(const char *path) {
 static struct fuse_operations operations = 
 {
 	.read = file_read,
-    .rmdir	= file_rmdir,
+    //.rmdir	= file_rmdir,
 	.readdir = file_readdir,
-	.getattr = file_getattr,	
+	.getattr = file_getattr	
 
 };
 
@@ -190,7 +190,7 @@ int main(int argc, char *argv[])
 	example.filename = strdup("/bin/baz/example");
 	example.contents = strdup("Hello world\n");
 	readme.filename = strdup("/bin/baz/readme.txt");
-	readme.contents = strdup("Student Р§РµР»СѓС€РєРёРЅ РђР»РµРєСЃР°РЅРґСЂ, 16120053\n");
+	readme.contents = strdup("Student Artem, 16120053\n");
 	test.filename = strdup("/foo/test.txt");
     for(int i=0;i<53;i++){
      testText[i*2] = 'a';
