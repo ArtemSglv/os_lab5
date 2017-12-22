@@ -9,6 +9,8 @@
         |--example/200
         `--baz/244
             `--readme.txt/411
+
+node stats.js /path/to/config запуск
 */
 
 #define FUSE_USE_VERSION 30
