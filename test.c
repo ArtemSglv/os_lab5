@@ -2,7 +2,7 @@
 	gcc -Wall test.c `pkg-config fuse3 --cflags --libs` -o l5
 */
 
-#define FUSE_USE_VERSION 31
+#define FUSE_USE_VERSION 30
 
 #include <fuse.h>
 #include <stdio.h>
@@ -156,23 +156,7 @@ static int file_read(const char *path, char *buf, size_t size, off_t offset,
 	
 	return size;
 }
-static int file_rmdir(const char *path) {
-	if (!strcmp(path, "/"))	
-		return -ENOTEMPTY;
-	else if (!strcmp(path, bin_path))
-		return -ENOTEMPTY;
-	else if (!strcmp(path, bar_path) && !rm1) {
-		rm1 = 1;
-        return 0;
-	} else if (!strcmp(path, baz_path))
-		return -ENOTEMPTY;	
-	else if (!strcmp(path, foo_path) && !rm){
-		rm = 1;
-		return 0;
-	}
-	else
-		return -ENOENT;	
-}
+
 
 
 static struct fuse_operations operations = 
@@ -186,7 +170,7 @@ static struct fuse_operations operations =
 
 int main(int argc, char *argv[])
 {
-	struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
+	//struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
 	example.filename = strdup("/bin/baz/example");
 	example.contents = strdup("Hello world\n");
 	readme.filename = strdup("/bin/baz/readme.txt");
@@ -200,5 +184,5 @@ int main(int argc, char *argv[])
        test.contents = strdup(testText);
     
 
-	return fuse_main(args.argc, args.argv, &operations, NULL);
+	return fuse_main(argc, argv, &operations, NULL);
 }

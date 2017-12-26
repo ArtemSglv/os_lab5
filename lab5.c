@@ -9,19 +9,16 @@
         |--example/200
         `--baz/244
             `--readme.txt/411
-
-node stats.js /path/to/config запуск
 */
 
 #define FUSE_USE_VERSION 30
 
 #include <fuse.h>
-#include <unistd.h>
-#include <sys/types.h>
 #include <stdio.h>
+#include <unistd.h>
 #include <string.h>
+#include <stdlib.h>
 #include <errno.h>
-#include <fcntl.h>
 
 
 static const char *readme_str = "Student Artem Shcheglov 16150040";
@@ -127,6 +124,10 @@ static int _readdir(const char *path, void *buf, fuse_fill_dir_t filler,
     }
 }
 
+static int _open(const char *path, struct fuse_file_info *fi){
+	return 0;
+}
+
 static int _write (const char *path, const char *buf, size_t size, off_t offset,struct fuse_file_info *fi)
     {
         (void) buf;
@@ -136,8 +137,8 @@ static int _write (const char *path, const char *buf, size_t size, off_t offset,
         char *fileBuffer;
 
         if (strcmp(path, "/foo/baz/readme.txt") == 0) {
-            len = strlen(readme_str);
-            fileBuffer = readme_str;
+           len = strlen(readme_str);
+           fileBuffer = readme_str;
         }
         else if (strcmp(path, "/foo/example") == 0) {
             len = strlen(example_str);
@@ -147,20 +148,32 @@ static int _write (const char *path, const char *buf, size_t size, off_t offset,
             len = strlen(testtxt_str);
             fileBuffer = testtxt_str;
             }
-        else{
-            return -ENOENT;
-        }
 
-        if (offset < len){
-            if (offset + size > len){
-                size = len-offset;
-            }
-                fileBuffer = buf;
-                return size;
-            }
-            else{
-                return -1;
-            }
+        if(offset+ size <= len)
+		{ 
+			for(int i=0;i<size;i++)
+			{
+				fileBuffer[offset+i] = buf[i];
+			}
+			return size;
+		}else	
+		{
+			char *temp = (char*)malloc(offset + size);
+			for(int i=0;i<len;i++)
+			{
+				temp[i] = fileBuffer[i];
+			}
+
+			for(int i=0;i<size;i++)
+			{
+				temp[offset+i] = buf[i];
+			}
+			fileBuffer = temp;
+			len = offset + size;
+			return size;
+		}
+        return -1;
+            
     }
 
 static int _read(const char *path, char *buf, size_t size, off_t offset,
@@ -207,11 +220,38 @@ static int _read(const char *path, char *buf, size_t size, off_t offset,
         return -1;
     }
 }
+int my_setxattr (const char *b, const char *c, const char *d, size_t e, int f)
+{
+return 0;
+}
+
+int my_chown (const char *a, uid_t b, gid_t c)
+{
+return 0;
+}
+int my_chmod (const char *a, mode_t b)
+{
+return 0;
+}
+int my_truncate (const char *a, off_t b)
+{
+return 0;
+}
+int my_utime (const char *a, struct utimbuf *b)
+{
+return 0;
+}
 
 static struct fuse_operations _oper = {
     .getattr        = _getattr,
     .readdir        = _readdir,
     .read           = _read,
+    .setxattr   = my_setxattr,
+    .chmod = my_chown,
+    .chown = my_chmod,
+    .truncate = my_truncate,
+    .utime =my_utime,
+    .open           = _open,
     .write          = _write
 };
 
